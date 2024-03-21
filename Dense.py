@@ -1,4 +1,4 @@
-import numpy as np
+# import numpy as np
 
 # X = np.random.rand(3,4)
 # y = np.array([[0,0,1], [1,0,0], [0,1,0]])
@@ -14,10 +14,10 @@ class Layer_Dense:
         self.output = np.dot(X, self.weights) + self.biases
 
 # dense1 = Layer_Dense(4, 4)
-#
+
 # dense2 = Layer_Dense(4, 3)
-#
+
 # dense1.forward(X)
 # dense2.forward(dense1.output)
-#
+
 # print(dense2.output)
