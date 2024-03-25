@@ -44,5 +44,7 @@ activation1.backward(dvalues)
 dense1.backward(activation1.dinputs)
 print(dense1.weights)
 print(dense1.biases)
-print(dense1.dweights)
-print(dense1.dbiases)
+dense1.weights += - 0.001 * dense1.dweights
+dense1.biases += -0.001 * dense1.dbiases
+print(dense1.weights)
+print(dense1.biases)
