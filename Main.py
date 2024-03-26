@@ -5,6 +5,7 @@ from Dense import Layer_Dense
 from ReLU import Activation_ReLU
 from Softmax import Activation_Softmax
 from CategoricalCrossEntropy import Loss_CategoricalCrossEntropy
+from ActivationLossDerivative import Activation_Softmax_Loss_CategoricalCrossEntropy
 
 iris = load_iris()
 
@@ -27,18 +28,24 @@ dense2 = Layer_Dense(64, 3)
 activation1 = Activation_ReLU()
 activation2 = Activation_Softmax()
 loss = Loss_CategoricalCrossEntropy()
+activation_loss = Activation_Softmax_Loss_CategoricalCrossEntropy()
 
 #Running the forward pass
 dense1.forward(X)
 activation1.forward(dense1.output)
 dense2.forward(activation1.output)
 activation2.forward(dense2.output)
-print(loss.calculate(activation2.output, y))
+# print(loss.calculate(activation2.output, y))
+print(activation_loss.forward(dense2.output, y))
 
 
 #Backward Pass
-loss.backward(activation2.output, y)
-activation2.backward(loss.dinputs)
-dense2.backward(activation2.dinputs)
+activation_loss.backward(activation2.output, y)
+# loss.backward(activation2.output, y)
+# activation2.backward(loss.dinputs)
+dense2.backward(activation_loss.dinputs)
 activation1.backward(dense2.dinputs)
 dense1.backward(activation1.dinputs)
+
+
+print(dense1.dweights)
