@@ -7,10 +7,10 @@ class Activation_Softmax_Loss_CategoricalCrossEntropy:
         self.loss = Loss_CategoricalCrossEntropy()
         self.activation = Activation_Softmax()
 
-    def forward(self, output, y):
-        self.activation.forward(output)
+    def forward(self, input, y):
+        self.activation.forward(input)
         self.output = self.activation.output
-        return self.loss.calculate(self.activation.output, y)
+        return self.loss.calculate(self.output, y)
 
     def backward(self, dvalues, y):
         samples = len(dvalues)
