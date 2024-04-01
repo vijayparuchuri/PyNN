@@ -7,4 +7,4 @@ class Activation_ReLU:
         self.output = np.maximum(0, input)
     def backward(self, dvalues):
         self.dinputs = dvalues.copy()
-        self.dinputs[self.dinputs < 0] = 0
+        self.dinputs[self.input <= 0] = 0
