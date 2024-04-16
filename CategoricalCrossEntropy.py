@@ -4,6 +4,22 @@ class Loss:
     def calculate(self, output, y):
         loss = np.mean(self.forward(output, y))
         return loss
+    def regularization_loss(self, layer):
+        regularization_loss = 0
+        
+        if layer.weight_regularizer_L1 > 0:
+            regularization_loss += layer.weight_regularizer_L1 * np.sum(np.abs(layer.weights))
+        
+        if layer.weight_regularizer_L2 > 0:
+            regularization_loss += layer.weight_regularizer_L2 * np.sum(layer.weights * layer.weights)
+        
+        if layer.bias_regularaizer_L1 > 0:
+            regularization_loss += layer.bias_regularaizer_L1 * np.sum(np.abs(layer.biases))
+        
+        if layer.bias_regularizer_L2 > 0:
+            regularization_loss += layer.bias_regularizer_L2 * np.sum(layer.bias_regularizer_L2 * layer.bias_regularizer_L2)
+        
+        return regularization_loss
 
 class Loss_CategoricalCrossEntropy(Loss):
     def forward(self, y_pred, y_true):
