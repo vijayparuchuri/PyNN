@@ -89,4 +89,4 @@ for i in range(10001):
         y = np.argmax(y, axis=1)
     accuracy = np.mean(predictions==y)
     if i % 100 == 0:
-        print(f'Validation Accuracy:{accuracy:.3f}, Validation Loss:{loss:.3f}')
+        print(f'Validation Accuracy:{accuracy:.4f}, Validation Loss:{loss:.4f}')
