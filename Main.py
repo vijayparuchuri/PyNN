@@ -1,12 +1,12 @@
 from sklearn.datasets import load_iris
 import pandas as pd
 import numpy as np
-from Dense import Layer_Dense
-from ReLU import Activation_ReLU
-from Softmax import Activation_Softmax
-from CategoricalCrossEntropy import Loss_CategoricalCrossEntropy
-from ActivationLossDerivative import Activation_Softmax_Loss_CategoricalCrossEntropy
-from Optimizers import SGD, AdaGrad, RMSProp, Adam
+from Layers.Dense import Layer_Dense
+from Activations.ReLU import Activation_ReLU
+from Activations.Softmax import Activation_Softmax
+from Losses.CategoricalCrossEntropy import Loss_CategoricalCrossEntropy
+from Losses.ActivationLossDerivative import Activation_Softmax_Loss_CategoricalCrossEntropy
+from Optimziers.Optimizers import SGD, AdaGrad, RMSProp, Adam
 
 # iris = load_iris()
 
