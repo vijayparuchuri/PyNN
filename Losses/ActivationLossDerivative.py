@@ -1,6 +1,6 @@
 import numpy as np
-from CategoricalCrossEntropy import Loss_CategoricalCrossEntropy
-from Softmax import Activation_Softmax
+from Losses.CategoricalCrossEntropy import Loss_CategoricalCrossEntropy
+from Activations.Softmax import Activation_Softmax
 
 class Activation_Softmax_Loss_CategoricalCrossEntropy:
     def __init__(self):
