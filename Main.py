@@ -2,6 +2,7 @@ from sklearn.datasets import load_iris
 import pandas as pd
 import numpy as np
 from Layers.Dense import Layer_Dense
+from Layers.Dropout import Layer_Dropout
 from Activations.ReLU import Activation_ReLU
 from Activations.Softmax import Activation_Softmax
 from Losses.CategoricalCrossEntropy import Loss_CategoricalCrossEntropy
@@ -43,18 +44,20 @@ X, y = spiral_data(100, 3)
 
 #Initializations
 dense1  = Layer_Dense(2, 64, weight_regularizer_L2 = 5e-4, bias_regularizer_L2=5e-4)
+dropout = Layer_Dropout(0.1)
 dense2 = Layer_Dense(64, 3)
 activation1 = Activation_ReLU()
 activation_loss = Activation_Softmax_Loss_CategoricalCrossEntropy()
 # optimizer = SGD(decay=1e-3, momentum=0.99, learning_rate=.1)
 # optimizer = AdaGrad(0.1, decay=1e-4, epsilon=1e-4)
 # optimizer = RMSProp(0.02, decay=1e-5, rho=0.9, epsilon=1e-7)
-optimizer = Adam(learning_rate=0.05, decay=5e-7)
+optimizer = Adam(learning_rate=0.005, decay=1e-5)
 
 #Running the forward pass
 for i in range(10001):
     dense1.forward(X)
     activation1.forward(dense1.output)
+    dropout.forward(activation1.output)
     dense2.forward(activation1.output)
     data_loss = activation_loss.forward(dense2.output, y)
     regularization_loss = activation_loss.loss.regularization_loss(dense1) + activation_loss.loss.regularization_loss(dense2)
@@ -69,6 +72,7 @@ for i in range(10001):
 #Backward Pass
     activation_loss.backward(activation_loss.output, y)
     dense2.backward(activation_loss.dinputs)
+    dropout.backward(dense2.dinputs)
     activation1.backward(dense2.dinputs)
     dense1.backward(activation1.dinputs)
 
