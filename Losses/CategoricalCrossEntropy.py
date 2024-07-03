@@ -1,24 +1,33 @@
 import numpy as np
 
 class Loss:
-    def calculate(self, output, y):
-        loss = np.mean(self.forward(output, y))
-        return loss
-    def regularization_loss(self, layer):
+    def remember_trainable_layers(self, trainable_layers):
+        self.trainable_layers = trainable_layers
+    
+    def calculate(self, output, y, include_regularization = False):
+        data_loss = np.mean(self.forward(output, y))
+        
+        if not include_regularization:
+            return data_loss
+            
+        return data_loss, self.regularization_loss()
+    
+    def regularization_loss(self):
         regularization_loss = 0
-        
-        if layer.weight_regularizer_L1 > 0:
-            regularization_loss += layer.weight_regularizer_L1 * np.sum(np.abs(layer.weights))
-        
-        if layer.weight_regularizer_L2 > 0:
-            regularization_loss += layer.weight_regularizer_L2 * np.sum(layer.weights * layer.weights)
-        
-        if layer.bias_regularaizer_L1 > 0:
-            regularization_loss += layer.bias_regularaizer_L1 * np.sum(np.abs(layer.biases))
-        
-        if layer.bias_regularizer_L2 > 0:
-            regularization_loss += layer.bias_regularizer_L2 * np.sum(layer.bias_regularizer_L2 * layer.bias_regularizer_L2)
-        
+    
+        for layer in self.trainable_layers:
+            if layer.weight_regularizer_L1 > 0:
+                regularization_loss += layer.weight_regularizer_L1 * np.sum(np.abs(layer.weights))
+            
+            if layer.weight_regularizer_L2 > 0:
+                regularization_loss += layer.weight_regularizer_L2 * np.sum(layer.weights * layer.weights)
+            
+            if layer.bias_regularaizer_L1 > 0:
+                regularization_loss += layer.bias_regularaizer_L1 * np.sum(np.abs(layer.biases))
+            
+            if layer.bias_regularizer_L2 > 0:
+                regularization_loss += layer.bias_regularizer_L2 * np.sum(layer.bias_regularizer_L2 * layer.bias_regularizer_L2)
+            
         return regularization_loss
 
 class Loss_CategoricalCrossEntropy(Loss):
