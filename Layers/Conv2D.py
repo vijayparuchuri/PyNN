@@ -2,10 +2,6 @@ import numpy as np
 from scipy.signal import convolve2d
 
 
-import numpy as np
-from scipy.signal import convolve2d
-
-
 class Layer_Conv2D:
     def __init__(self, input_shape, kernel_size, filters = 1 ,padding='valid', stride=(1, 1)):
         self.k_h, self.k_w = kernel_size
