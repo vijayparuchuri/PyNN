@@ -67,5 +67,6 @@ class Layer_Conv2D:
         else:
             dinputs = np.array([convolve2d(dvalues , np.flipud(np.fliplr(weight)), mode=self.padding) for weight in weights])
             dinputs = dinputs.transpose(1, 2, 0)
-        
+        if self.padding == 'same':
+            dinputs = dinputs[self.p_h_top:-self.p_h_bottom, self.p_w_left:-self.p_w_right, :]
         return dinputs
