@@ -11,7 +11,7 @@ class Layer_MaxPooling2D:
         
         
     def create_padding(self, input):
-        self.input = input.transpose(2, 0, 1)
+        input = input.transpose(2, 0, 1)
         if isinstance(self.padding, tuple) and len(self.padding)==2:
             self.p_h_top, self.p_h_bottom = self.padding
             self.p_w_left, self.p_w_right = self.padding
@@ -27,36 +27,41 @@ class Layer_MaxPooling2D:
                 self.p_h_bottom = self.k_h // 2
                 self.p_w_left = (self.k_w - 1) // 2
                 self.p_w_right = self.k_w // 2
-        padded_input = np.pad(self.input, mode='constant', pad_width=((0, 0), (self.p_h_top, self.p_h_bottom), (self.p_w_left, self.p_w_right)))
+        padded_input = np.pad(input, mode='constant', pad_width=((0, 0), (self.p_h_top, self.p_h_bottom), (self.p_w_left, self.p_w_right)))
         return padded_input
     
     def forward(self, input):
-        if self.padding:
-            padded_input = self.create_padding(input)
-            self.input = padded_input
-        else:
-            self.input = input.transpose(2, 0 ,1)
-        windows = np.lib.stride_tricks.sliding_window_view(self.input, self.kernel_size, (1, 2))[:, ::self.s_h, ::self.s_w]
-        self.wins = windows
+        self.input = np.array([self.create_padding(input) if self.padding is not None else input.transpose(2, 0, 1) for input in input])
+        self.max_indices = []
+        self.output= np.stack([self.single_input_pooling(single_input) for single_input in self.input])
+        
+    def single_input_pooling(self, single_input):
+        windows = np.lib.stride_tricks.sliding_window_view(single_input, self.kernel_size, (1, 2))[:, ::self.s_h, ::self.s_w]
         windows_reshaped = windows.reshape(windows.shape[0], windows.shape[1], windows.shape[2], -1)
-        self.max_indices = np.argmax(windows_reshaped, axis=3)
-        self.output = windows.max(axis=(3, 4)).transpose(1, 2, 0)
-
+        self.max_indices.append(np.argmax(windows_reshaped, axis=3))
+        output = windows.max(axis=(3, 4)).transpose(1, 2, 0)
+        return output
+    
     def backward(self, dvalues):
-        self.dinputs = np.zeros_like(self.input)
-        dvalues = dvalues.transpose(2, 0, 1)
-        c, h_out, w_out = dvalues.shape
-        max_pos = np.unravel_index(self.max_indices, (self.k_h, self.k_w))
-        batch_indices = np.arange(c)[:, None, None]
+        self.dinputs = np.stack([self.calculate_single_dinput(single_input, single_dvalue, max_index) for single_input, single_dvalue, max_index in zip(self.input, dvalues, self.max_indices)])
+        
+    def calculate_single_dinput(self, single_input, single_dvalue, max_index):
+        dinput = np.zeros_like(single_input)
+        single_dvalue = single_dvalue.transpose(2, 0, 1)
+        c, h_out, w_out = single_dvalue.shape
+        max_pos = np.unravel_index(max_index, (self.k_h, self.k_w))
+
         row_indices = np.arange(h_out)[:, None] * self.s_h + max_pos[0]
         col_indices = np.arange(w_out)[None, :] * self.s_w + max_pos[1]
+
         row_indices = np.clip(row_indices, 0, self.input.shape[1] - 1)
         col_indices = np.clip(col_indices, 0, self.input.shape[2] - 1)
+
         for i in range(c):
-            self.dinputs[i, row_indices[i], col_indices[i]] += dvalues[i]
+            dinput[i, row_indices[i], col_indices[i]] += single_dvalue[i]
 
         if self.padding:
-            self.dinputs = self.dinputs[:, self.p_h_top:self.dinputs.shape[1] - self.p_h_bottom,
-                                        self.p_w_left:self.dinputs.shape[2] - self.p_w_right]
-            
-        self.dinputs = self.dinputs.transpose(1, 2, 0)
+            dinput = dinput[:, self.p_h_top:dinput.shape[1] - self.p_h_bottom,
+                                        self.p_w_left:dinput.shape[2] - self.p_w_right]
+        dinput = dinput.transpose(1, 2, 0)
+        return dinput
